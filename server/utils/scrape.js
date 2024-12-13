@@ -14,7 +14,7 @@ const ScrapeProductPrice = async (url) => {
     const productData = await page.evaluate(() => {
         const getText = (selector) => document.querySelector(selector)?.textContent?.replace('$', '').trim() || null
         const getImageUrl = (selector) => document.querySelector(selector)?.src || null
-        const price = getText('.a-section.a-spacing-none.aok-align-center.aok-relative .aok-offscreen') || getText(".a-offscreen");
+        const price = getText('.a-section.a-spacing-none.aok-align-center.aok-relative .aok-offscreen').split(" ")[0] || getText(".a-offscreen");
         const productName = getText("#title #productTitle")
         const productImage = getImageUrl('#imgTagWrapperId img');
 

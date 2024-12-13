@@ -15,4 +15,4 @@ router.use(`${base}/track`, TrackRoute);
 router.use(`${base}/subscribe`, SubscriptionRouter);
 router.use(`${base}/webhooks`, WebHookRoute);
 
-module.exports = router
+module.exports = router;

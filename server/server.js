@@ -8,16 +8,19 @@ const { Schedule } = require("./utils/schedule.js")
 
 app.set('view engine', 'ejs');
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cors());
-app.use('/', routes);
+app.use(cors({
+    origin: 'http://localhost:3000'
+}));  // First, allow cross-origin requests
+app.use(express.json());  // Then, parse JSON bodies
+app.use(express.urlencoded({ extended: false }));  // Then, parse URL-encoded bodies
+app.use('/', routes);  // Finally, your routes
+
 app.get('/', async (req, res) => {
     res.render('index.ejs')
 })
 
-app.listen(3000, () => {
-    console.log("Listening on port 3000 .....");
+app.listen(8000, () => {
+    console.log("Listening on port 8000 .....");
     connectDb();
     // Schedule();
 })

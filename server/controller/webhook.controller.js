@@ -19,7 +19,7 @@ const StripeWebHook = async (req, res) => {
                 }
             }, { new: true })
 
-            sendWelcomeMesssage('okolokelvin02@gmail.com');
+            sendWelcomeMesssage(userSub.email);
         break;
         
         case 'invoice.payment_failed':
