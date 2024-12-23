@@ -9,7 +9,6 @@ const userSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
-        unique: true
     },
 
     password: {
@@ -19,13 +18,18 @@ const userSchema = new mongoose.Schema({
 
     trackedProducts: [
         {
-            name: String,
-            url: String,
-            imageUrl: String,
-            currentPrice: Number,
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Product"
         }
-    ]
+    ],
+
+    subscription: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Subscription',
+        default: null
+    }
 
 }, { timestamps: true});
+
 
 module.exports = mongoose.model("User", userSchema);

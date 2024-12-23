@@ -11,12 +11,6 @@ const ProductSchema = new mongoose.Schema({
     }],
 
     imageUrl: String,
-
-    emails: [{
-        type: String,
-        unique: true
-    }]
-    
 })
 
 module.exports = mongoose.model("Product", ProductSchema);

@@ -4,38 +4,76 @@ const User = require("../models/user.model.js");
 const ScrapeProduct = require("../utils/scrape.js");
 
 // ✅✅✅✅
-const track = async (req, res) => {
+const trackProduct = async (req, res) => {
     try {
-        const { url } = req.body
-        const user = await User.findById(req.userId);
+        const { price, name, image, url } = req.body
+        const userTrackedItem = await User.findById(req.userId);
 
-        const productData = await ScrapeProduct(url);
+        if (name && price && url) {
+            const checkedProduct = await Product.findOne({ name, url })
 
-        if (productData && productData.name && productData.price) {
-    
+            if (checkedProduct && userTrackedItem.trackedProducts.includes(checkedProduct._id)) {
+                return res.status(http.StatusCodes.INTERNAL_SERVER_ERROR).send({ msg: "This product is already being tracked" });
+            }
             // creating new entry
-            const product = new Product({
-                name: productData.name,
+            const product = await Product.create({
+                name,
                 url,
-                currentPrice: productData.price,
-                priceHistory: [{ price: productData.price }],
-                imageUrl: productData.productImage,
+                currentPrice: price,
+                imageUrl: image,
+                priceHistory: [{ price }],
             })
 
-            product.emails.push(user.email);
+            const user = await User.findByIdAndUpdate(req.userId, {
+                $addToSet: {
+                    trackedProducts: product._id
+                }
+            });
 
-            await product.save();
-            
             return res.status(http.StatusCodes.OK).json({ msg: "Your product is successfully being tracked 🤖" });
         } else {
-            res.status(http.StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Product data not found or incomplete" });     
+            return res.status(http.StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Link invalid" });
         }    
 
     } catch (error) {
-        res.status(http.StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error occurred" });
-        console.log(error.message)
+        res.status(http.StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error occurred please try again later" });
+        console.log(error)
+    }
+}
+
+const getProduct = async (req, res) => {
+    try {
+        const { url } = req.body;
+
+        const productData = await ScrapeProduct(url);
+
+        if (!productData) { 
+            return new Error("No product data returned");
+        } 
+
+        if (productData && productData.name && productData.price && productData.productImage) {
+            return res.status(http.StatusCodes.OK).json({msg: "Product found", productData});
+        } else {
+            console.log(productData)
+            return res.status(http.StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Product data not found. Try again" });
+        }
+
+        
+    } catch (error) {
+        console.log(error)
+        return res.status(http.StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error occurred please try again later" });
+    }
+}
+
+const getTrackedProduct = async (req, res) => {
+    try {
+        const user = await User.findById(req.userId).populate("trackedProducts").exec();
+
+        return res.status(http.StatusCodes.OK).json(user.trackedProducts);
+    } catch (error) {
+        return res.status(http.StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error occurred" });
     }
 }
 
 
-module.exports = { track }
+module.exports = { trackProduct, getProduct, getTrackedProduct }

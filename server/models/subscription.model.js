@@ -18,11 +18,6 @@ const subscriptionSchema = new mongoose.Schema({
         default: null
     },
 
-    subscribedAt: {
-        type: Date,
-        default: Date.now()
-    },
-
     paid: {
         type: Boolean,
         default: false
@@ -31,6 +26,7 @@ const subscriptionSchema = new mongoose.Schema({
     subscriptionType: {
         type: String
     }
-});
+
+}, {timestamps: true});
 
 module.exports = mongoose.model('Subscription', subscriptionSchema);

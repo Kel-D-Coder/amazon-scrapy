@@ -5,7 +5,7 @@ const { CustomerPortal } = require("../controller/portal.controller.js");
 
 const router = express.Router();
 
-router.get('/', PayForPlan);
+router.post('/', authMiddleware, PayForPlan);
 router.get('/customer/portal', authMiddleware, CustomerPortal);
 
 

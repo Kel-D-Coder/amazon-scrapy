@@ -1,18 +1,17 @@
-const Subscription = require('../models/subscription.model.js');
+// const Subscription = require('../models/subscription.model.js');
 const http = require('http-status-codes');
+const User = require('../models/user.model');
 
 const subscriptionMiddleware = async (req, res, next) => {
     try {
-        const userSubscription = await Subscription.findById(req.userId);
-        if (userSubscription.paid) {
+        const user = await User.findById(req.userId).populate('subscription').exec();
+        if (user.subscription.paid) {
             next();
-        } else {
-            return res.status(http.StatusCodes.BAD_REQUEST).json({ msg: "Please subscribe to a plan" });
         }
 
     } catch (error) {
-        res.status(http.StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error occured" });
+        res.status(http.StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error occured", subUrl: '/pricing'});
     }
 }
 
-model.exports = subscriptionMiddleware
+module.exports = subscriptionMiddleware

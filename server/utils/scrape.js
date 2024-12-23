@@ -1,33 +1,69 @@
-const puppeteer = require("puppeteer");
+const puppeteer = require("puppeteer-extra");
+const StealthPlugin = require("puppeteer-extra-plugin-stealth");
+puppeteer.use(StealthPlugin());
 
-//  ✅✅✅✅
+const randomUserAgent = require('random-useragent');
+
+
+    const proxies = [
+        'http://35.176.148.8:3128',
+        'http://187.141.125.210:8080',
+        'http://103.152.112.120:80'
+    ]
+
+    const getRandomProxy = (proxyList) => {
+        const randomIndex = Math.floor(Math.random() * proxyList.length);
+        return proxyList[randomIndex];
+    };
+
+// //  ✅✅✅✅
 const ScrapeProductPrice = async (url) => {
-    const browser = await puppeteer.launch();
-    
-    const page = await browser.newPage();
 
-    // Set viewport to a desktop resolution to ensure a desktop layout
-    await page.setViewport({ width: 1280, height: 840 });
+    const proxy = getRandomProxy(proxies);
 
-    await page.goto(url, {waitUntil: "domcontentloaded"});
+    try {
+        const browser = await puppeteer.launch({
+            args: [`--proxy-server=${proxy}`],
+        });
 
-    const productData = await page.evaluate(() => {
-        const getText = (selector) => document.querySelector(selector)?.textContent?.replace('$', '').trim() || null
-        const getImageUrl = (selector) => document.querySelector(selector)?.src || null
-        const price = getText('.a-section.a-spacing-none.aok-align-center.aok-relative .aok-offscreen').split(" ")[0] || getText(".a-offscreen");
-        const productName = getText("#title #productTitle")
-        const productImage = getImageUrl('#imgTagWrapperId img');
+        const page = await browser.newPage();
 
-        return { name: productName, price, productImage }
-    })
+        // Set viewport to a desktop resolution to ensure a desktop layout
+        await page.setViewport({ width: 1280, height: 840 });
 
-    await browser.close();
+        // set a random user agent
+        await page.setUserAgent(randomUserAgent.getRandom());
 
-    console.log(productData);
+        await page.goto(url, { waitUntil: "domcontentloaded", timeout: 10000 });
 
-    return productData;
+        await page.waitForSelector('.a-section.a-spacing-none .a-size-large.a-spacing-none .a-size-large.product-title-word-break');
+        await page.waitForSelector(".imgTagWrapper img");
+
+
+        const productData = await page.evaluate(() => {
+            const getText = (selector) => document.querySelector(selector)?.textContent.trim() || null
+            const getPrice = (selector) => document.querySelector(selector)?.textContent?.replace('$', '').replace(',', '').trim() || null
+            const getImageUrl = (selector) => document.querySelector(selector)?.src || null
+
+            const price = getPrice('.a-section.a-spacing-none.aok-align-center.aok-relative .aok-offscreen')?.split(" ")[0] || 'Unavailable'
+            const productName = getText(".a-section.a-spacing-none .a-size-large.a-spacing-none .a-size-large.product-title-word-break")
+            const productImage = getImageUrl('.imgTagWrapper img');
+
+            return { name: productName, price, productImage }
+        })
+
+        await browser.close();
+
+        console.log(productData);
+        return productData;
+
+    } catch (error) {
+        console.error(`Error scraping product data:`, error.message);
+        return null;
+    }
+
 }
 
-// ScrapeProductPrice("https://www.amazon.com/AmazonBasics-Pound-Neoprene-Dumbbells-Weights/dp/B01LR5S6HK/?_encoding=UTF8&pd_rd_w=UDH9l&content-id=amzn1.sym.9929d3ab-edb7-4ef5-a232-26d90f828fa5&pf_rd_p=9929d3ab-edb7-4ef5-a232-26d90f828fa5&pf_rd_r=RBT9C8ZH6Q3F5558B2C6&pd_rd_wg=wFnDk&pd_rd_r=52bdc82b-2098-45ca-8db1-e0d586f13903&ref_=pd_hp_d_btf_crs_zg_bs_3375251&th=1");
+ScrapeProductPrice("https://www.amazon.com/SAMSUNG-Physical-Smartphone-Factory-Unlocked/dp/B0CV73SG4Z/ref=sr_1_2?crid=1BSC6JCF03VUL&dib=eyJ2IjoiMSJ9.nsyb0SF4p0uSwFcc8N5ap1GxcWJN8kqXLVbuxcqbiI2-xQQQUVb8fdYSOsDExFtiWpPNGRMwVbbUdvgDFkt0BboghpoMr4qkEeelFcX27nq5y-7lZp0ABMNWF4zrVgniv1PNLOU1e7hSvG_DDQrrLHLCDndTJZTxoYQJQarcJWykQsGdlbQvpUEzWu5Yvyx4s2Z7bLgB-bH1pxY6hh3r3bIQ3oTnV5wkphXF3Lp6NyM.Rg8bWZ3sH3me4cbp63qlLGXg-vll06Cmm9S2aO49Oho&dib_tag=se&keywords=samsung+s24+ultra&qid=1734889551&sprefix=samsung+s%2Caps%2C519&sr=8-2");
 
 module.exports = ScrapeProductPrice;

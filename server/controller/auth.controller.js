@@ -69,7 +69,7 @@ const login = async (req, res) => {
 
         return res.status(http.StatusCodes.OK).json({ token, msg: "Logged in successfully", info: rest })
     } catch (error) {
-        return res.status(http.StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error occured"})
+        return res.status(http.StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error occured" });
     }
 }
 

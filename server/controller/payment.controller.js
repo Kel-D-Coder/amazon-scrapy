@@ -3,17 +3,17 @@ const Subscription = require('../models/subscription.model.js');
 const User = require('../models/user.model.js');
 const http = require('http-status-codes');
 
-// full test with frontend
+
 const PayForPlan = async (req, res) => {
     const plan = req.query.plan
     const userId = req.userId
 
-   try {
+    try {
        const user = await User.findById(userId);
-       const sub = await Subscription.findOne(userId);
+       const sub = await Subscription.findOne({ userId });
 
         if (!plan) {
-            return res.send("Subscription plan not found");
+            return res.status(http.StatusCodes.INTERNAL_SERVER_ERROR).json({msg: "Subscription plan not found"});
         }
 
         let priceId;
@@ -39,21 +39,31 @@ const PayForPlan = async (req, res) => {
             ],
 
             // Remember to make this to match the pages in the react app
-            success_url: 'http://localhost:3000/api/v1/payment/success?session_id={CHECKOUT_SESSION_ID}',
-            cancel_url: 'http://localhost:3000/cancel'
+            success_url: 'http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url: 'http://localhost:3000',
+
+            metadata: {
+                userId: userId
+            }
         })
-       
+
         if (!sub) {
-           await Subscription.create({
+            const sub = await Subscription.create({
                userId,
                email: user.email,
                subscriptionType: plan
-            })
+           })
+
+            user.subscription = sub._id
+
+            await  user.save()
+
         }
 
        return res.status(http.StatusCodes.OK).json({ sessionUrl: session.url });
 
     } catch (error) {
+       console.log(error)
        return res.status(http.StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: 'Error occurred while processing subscription payment' });
     }
 }
