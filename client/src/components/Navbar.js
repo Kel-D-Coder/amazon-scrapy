@@ -1,24 +1,34 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
-import { clearUser } from "../store/userSlice";
+import { useState, useEffect } from "react";
 import { persistor } from "../store/store";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import {isTokenExpired} from "../tokenUtils";
+import 'animate.css'
 
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((store) => store.user.currentUser);
-
-  console.log(user)
+  const [ isTokenStillValid, setIsTokenStillValid] = useState(true);
 
   const handleLogOut = () => {
     // clear redux state
     persistor.purge(); // clear persisted state
+    window.location.reload();
+    localStorage.removeItem('token');
   }
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+
+    if(!token || isTokenExpired(token)) {
+      persistor.purge();
+      localStorage.removeItem('token')
+      setIsTokenStillValid(false);
+    }
+  }, [isTokenStillValid])
 
   return (
     <div className="relative bg-transparent border-b">
@@ -73,7 +83,7 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="absolute top-full left-0 w-full bg-black flex flex-col items-center gap-5 py-5 text-white md:hidden z-50 shadow-md">
+        <div className="absolute top-full left-0 w-full bg-black flex flex-col items-center gap-5 py-5 text-white md:hidden z-50 shadow-md animate__animated animate__slideInDown">
           <Link
             to="/tracked-product"
             className="hover:text-orange-300"

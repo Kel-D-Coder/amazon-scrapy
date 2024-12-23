@@ -1,57 +1,98 @@
-// import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import 'animate.css';
 import { HowToUse } from './HowToUse';
+import axios from 'axios'
+import { Loader } from './Loader';
+import { ProductDetails } from './ProductDetails';
 
 export const TrackSection = () => {
-    // const [productInfo, setProductInfo] = useState(null);
-    // const [inputValue, setInputValue] = useState('');
-    // const [animate, setAnimate] = useState(false);
-    let animate = true
+    const [productInfo, setProductInfo] = useState({});
+    const [inputValue, setInputValue] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [animate, setAnimate] = useState(false);
+    const controllerRef = useRef(null);
+
+    const handleSubmit = async (e) => {
+        setError("");
+        setLoading(true);
+        e.preventDefault();
+        
+        const controller = new AbortController();
+        controllerRef.current = controller
+        const signal = controller.signal
+
+        try {
+            const response = await axios.post("http://localhost:8000/api/v1/track/get-product", {url: inputValue}, { 
+                signal,
+            });
+
+            const data = await response.data
+
+            setLoading(false);
+            setProductInfo(data.productData);
+            setAnimate(true);
+
+            // console.log(data)
+
+        } catch (error) {
+            if (axios.isCancel(error)) {
+                return
+            } else {
+                setLoading(false);
+                setError(error.response?.data.msg);
+                // console.log(error.response.data.msg)
+            }
+        }
+    }
+
+
+    useEffect(() => {
+        return () => {
+            if (controllerRef.current) {
+                controllerRef.current.abort();
+            }
+        }
+    }, [])
 
     return (
         <section className="flex flex-col place-items-center">
             
 
-            <div className="flex flex-col sm:flex-row justify-center items-center mt-10 space-y-4 sm:space-y-0">
-                <input
+            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row justify-center items-center mt-10 space-y-4 sm:space-y-0">
+                <div className="relative w-80 sm:w-80 md:w-80">
+                    <input
                     type="text"
                     placeholder="Paste your product link here"
-                    className="border-2 border-gray-600 focus:ring-2 focus:ring-yellow-500 bg-gray-800 w-80 text-white px-4 h-11 py-2 rounded-l-md sm:w-80 md:w-80 placeholder-gray-400"
+                    className="border-2 border-gray-600 focus:ring-2 focus:ring-yellow-500 bg-gray-800 w-full text-white px-4 h-11 py-2 rounded-l-md placeholder-gray-400"
                     aria-label="Product URL"
-                />
-                <button
-                    className="bg-orange-600 text-white h-11 font-semibold px-6 py-2 rounded-r-md sm:rounded-l-none hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 sm:ml-2 w-full sm:w-auto"
-                >
-                    Track Product
-                </button>
-            </div>
-
-            
-            {/* Product details */}
-
-            <div className={`mt-6 p-4 border rounded-lg bg-gray-100 shadow-md w-full max-w-xl ${animate ? 'animate__animated animate__fadeIn' : 'hidden'}`}>
-                <div className="flex flex-col sm:flex-row items-center sm:items-start">
-                    <img
-                    src="https://slickmobile.com.ng/wp-content/uploads/2024/06/Samsung-S24-Ultra.jpg"
-                    alt=""
-                    className="w-32 h-32 object-cover rounded-md mb-4 sm:mb-0 sm:mr-4"
+                    required
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
                     />
-                    <div className="text-center sm:text-left">
-                        <h2 className="text-lg font-bold">Samsung s24 ultra</h2>
-                        <p className="text-sm text-gray-600 mt-2">
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Iste aliquid
-                            libero maxime, explicabo amet voluptatibus suscipit porro quia fugit
-                            modi!
-                        </p>
-                        <p className="text-md font-semibold mt-2 text-orange-600">Price: $1500</p>
-                        <button className="mt-4 bg-orange-600 text-white font-medium py-2 px-4 rounded-md hover:bg-orange-500 transition lg:w-full sm:w-full">
-                            Track Product
-                        </button>
-                    </div>
+                    {inputValue && (
+                    <button
+                        type="button"
+                        onClick={() => setInputValue('')}
+                        className="absolute right-2 top-2 text-gray-400 hover:text-white focus:outline-none"
+                        aria-label="Clear input"
+                    >
+                        ✕
+                    </button>
+                    )}
                 </div>
-            </div>
+                <button
+                    type="submit"
+                    className="bg-orange-600 text-white h-11 font-semibold px-6 py-2 rounded-r-md flex place-content-center sm:rounded-l-none hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 sm:ml-2 w-full sm:w-auto disabled:cursor-not-allowed disabled:bg-gray-600 disabled:text-gray-300"
+                    disabled={loading}
+                >
+                    {loading ? <Loader /> : 'Get Product'}
+                </button>
+            </form>
 
+            <p className='text-red-700 text-center'>{error}</p>
 
+            <ProductDetails name={productInfo.name} price={productInfo.price} image={productInfo.productImage} animate={animate} url={inputValue} />
             <HowToUse />
         </section>
 

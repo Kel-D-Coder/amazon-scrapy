@@ -1,5 +1,6 @@
 // HowToUse.js
 import React from 'react';
+import 'animate.css';
 
 export const HowToUse = () => {
   const steps = [
@@ -21,14 +22,14 @@ export const HowToUse = () => {
   ];
 
   return (
-    <section className="bg-black-100 py-12">
+    <section className="bg-black-100 py-12 ">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold text-center text-orange-600 mb-8">How to Use Our Bot</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {steps.map((step, index) => (
             <div
               key={index}
-              className="bg-white shadow-lg rounded-lg p-6 text-center flex flex-col items-center"
+              className="bg-white shadow-lg rounded-lg p-6 text-center flex flex-col items-center animate__animated animate__fadeIn"
             >
               <img
                 src={step.image}

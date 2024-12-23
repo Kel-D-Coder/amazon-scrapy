@@ -1,4 +1,58 @@
+import axios from "axios";
+import { useRef, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Loader } from "../components/Loader";
+
 export const Pricing = () => {
+    const controllerRef = useRef(null);
+    const [error, setError] = useState("")
+    const [loading, setLoading] = useState(false)
+    const navigate = useNavigate();
+
+    const handlePayment = async (plan) => {
+        setError("")
+        setLoading(true)
+
+        const controller = new AbortController()
+        controllerRef.current = controller
+        const signal = controller.signal
+
+        try {
+            const response = await axios.post(`http://localhost:8000/api/v1/payment?plan=${plan}`, {}, {
+                signal,
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            })
+
+            setError("")
+            setLoading(false)
+            const data = await response.data
+            const { sessionUrl } = data
+
+            if (sessionUrl) {
+                window.location.href = sessionUrl
+            }
+
+            console.log(data)
+        } catch (error) {
+            if (axios.isCancel(error)) {
+                return
+            } else {
+                setLoading(false)
+                console.log(error);
+                navigate(error.response.data.loginUrl);
+                setError(error.response.data.msg)
+            }
+        }
+    }
+
+    useEffect(() => {
+        if (controllerRef.current) {
+            controllerRef.current.abort()
+        }
+    }, [])
+
   return (
     <div className="min-h-screen text-white px-6 py-12 md:px-16 lg:px-32">
         <div className="text-center mb-12">
@@ -25,9 +79,12 @@ export const Pricing = () => {
                     <li> ❌ Use Your Own Payment Gateway</li>
                     <li> ❌ Basic Attendee Self-Service</li>
                 </ul>
-                <button className="mt-6 px-4 py-2 bg-orange-400 text-black rounded-lg hover:bg-orange-300 transition-all duration-300">
-                    Get started
+                <button className="mt-6 px-4 py-2 bg-orange-400 text-black rounded-lg hover:bg-orange-300 transition-all duration-300 disabled:cursor-not-allowed disabled:bg-gray-600 disabled:text-gray-300 flex place-content-center" disabled={loading} onClick={() => handlePayment('starter')}>
+                    {
+                        loading ? <Loader /> : "Get started"
+                    }
                 </button>
+                <p className="text-red-700">{error}</p>
             </div>
 
             {/* Pro Plan with Blur Effect */}

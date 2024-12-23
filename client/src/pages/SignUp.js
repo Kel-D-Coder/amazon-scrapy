@@ -11,7 +11,7 @@ export const SignUp = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const controllerRef = useRef('');
+    const controllerRef = useRef(null);
     const navigate = useNavigate();
 
     const payload = {
@@ -26,9 +26,10 @@ export const SignUp = () => {
         setLoading(true);
         e.preventDefault();
         setError('');
+        
         const controller = new AbortController();
-        controllerRef.current = controller
-        const signal = controller.signal
+        controllerRef.current = controller;
+        const signal = controller.signal;
 
         try {
             const response = await axios.post('http://localhost:8000/api/v1/auth/register', payload, {
@@ -41,8 +42,8 @@ export const SignUp = () => {
             navigate('/sign-in')
 
         } catch (error) {
-            if (error.name === 'AbortError') {
-                return
+            if (axios.isCancel(error)) {
+                return;
             } else {
                 setLoading(false)
                 setError(error.response.data.msg);

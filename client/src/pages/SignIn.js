@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom"
-import { useState, useRef, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import axios from 'axios'
 import { Loader } from "../components/Loader"
 import { useDispatch } from "react-redux"
@@ -11,9 +11,10 @@ export const SignIn = () => {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState('');
     const [error, setError] = useState("");
-    const controllerRef = useRef('');
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const controllerRef = useRef(null);
+
 
     const payload = {
         email,
@@ -24,9 +25,12 @@ export const SignIn = () => {
         setLoading(true);
         setError("");
         e.preventDefault();
+
+        // Create a new AbortController for the request
         const controller = new AbortController();
-        controllerRef.current = controller;
+        controllerRef.current = controller; // Store the controller in the ref
         const signal = controller.signal;
+
 
         try {
             const response = await axios.post('http://localhost:8000/api/v1/auth/login', payload, { signal });
@@ -38,10 +42,8 @@ export const SignIn = () => {
             dispatch(setUser(data.info));
             navigate('/');
 
-            console.log(data);
-
         } catch (error) {
-            if (error.name === 'AbortError') {
+            if (axios.isCancel(error)) {
                 return
             } else {
                 setLoading(false)
