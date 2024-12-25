@@ -21,10 +21,6 @@ app.use(express.json());  // Then, parse JSON bodies
 app.use(express.urlencoded({ extended: false }));  // Then, parse URL-encoded bodies
 app.use('/', routes);  // Finally, your routes
 
-app.get('/', async (req, res) => {
-    res.render('index.ejs')
-})
-
 app.listen(8000, () => {
     console.log("Listening on port 8000 .....");
     connectDb();

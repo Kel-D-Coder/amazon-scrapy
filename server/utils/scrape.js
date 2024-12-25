@@ -6,9 +6,16 @@ const randomUserAgent = require('random-useragent');
 
 
     const proxies = [
-        'http://35.176.148.8:3128',
-        'http://187.141.125.210:8080',
-        'http://103.152.112.120:80'
+        'http://198.23.239.134:6540',
+        'http://207.244.217.165:6712',
+        'http://107.172.163.27:6543',
+        'http://64.137.42.112:5157',
+        'http://173.211.0.148:6641',
+        'http://161.123.152.115:6360',
+        'http://167.160.180.203:6754',
+        'http://154.36.110.199:6853',
+        'http://173.0.9.70:5653',
+        'http://173.0.9.209:5792'
     ]
 
     const getRandomProxy = (proxyList) => {
@@ -34,10 +41,15 @@ const ScrapeProductPrice = async (url) => {
         // set a random user agent
         await page.setUserAgent(randomUserAgent.getRandom());
 
-        await page.goto(url, { waitUntil: "domcontentloaded", timeout: 10000 });
+        await page.authenticate({
+            username: "pwdljslk",
+            password: "s89g74b171xz",
+        })
 
-        await page.waitForSelector('.a-section.a-spacing-none .a-size-large.a-spacing-none .a-size-large.product-title-word-break');
-        await page.waitForSelector(".imgTagWrapper img");
+        await page.goto(url, { waitUntil: "domcontentloaded" , timeout: 10000 });
+
+        // await page.waitForSelector('.a-section.a-spacing-none .a-size-large.a-spacing-none .a-size-large.product-title-word-break');
+        // await page.waitForSelector(".imgTagWrapper img");
 
 
         const productData = await page.evaluate(() => {
@@ -64,6 +76,6 @@ const ScrapeProductPrice = async (url) => {
 
 }
 
-ScrapeProductPrice("https://www.amazon.com/SAMSUNG-Physical-Smartphone-Factory-Unlocked/dp/B0CV73SG4Z/ref=sr_1_2?crid=1BSC6JCF03VUL&dib=eyJ2IjoiMSJ9.nsyb0SF4p0uSwFcc8N5ap1GxcWJN8kqXLVbuxcqbiI2-xQQQUVb8fdYSOsDExFtiWpPNGRMwVbbUdvgDFkt0BboghpoMr4qkEeelFcX27nq5y-7lZp0ABMNWF4zrVgniv1PNLOU1e7hSvG_DDQrrLHLCDndTJZTxoYQJQarcJWykQsGdlbQvpUEzWu5Yvyx4s2Z7bLgB-bH1pxY6hh3r3bIQ3oTnV5wkphXF3Lp6NyM.Rg8bWZ3sH3me4cbp63qlLGXg-vll06Cmm9S2aO49Oho&dib_tag=se&keywords=samsung+s24+ultra&qid=1734889551&sprefix=samsung+s%2Caps%2C519&sr=8-2");
+// ScrapeProductPrice("https://www.amazon.com/SAMSUNG-Physical-Smartphone-Factory-Unlocked/dp/B0CV73SG4Z/ref=sr_1_2?crid=1BSC6JCF03VUL&dib=eyJ2IjoiMSJ9.nsyb0SF4p0uSwFcc8N5ap1GxcWJN8kqXLVbuxcqbiI2-xQQQUVb8fdYSOsDExFtiWpPNGRMwVbbUdvgDFkt0BboghpoMr4qkEeelFcX27nq5y-7lZp0ABMNWF4zrVgniv1PNLOU1e7hSvG_DDQrrLHLCDndTJZTxoYQJQarcJWykQsGdlbQvpUEzWu5Yvyx4s2Z7bLgB-bH1pxY6hh3r3bIQ3oTnV5wkphXF3Lp6NyM.Rg8bWZ3sH3me4cbp63qlLGXg-vll06Cmm9S2aO49Oho&dib_tag=se&keywords=samsung+s24+ultra&qid=1734889551&sprefix=samsung+s%2Caps%2C519&sr=8-2");
 
 module.exports = ScrapeProductPrice;

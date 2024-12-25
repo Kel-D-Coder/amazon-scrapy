@@ -42,7 +42,7 @@ const register = async (req, res) => {
 
        return res.status(http.StatusCodes.CREATED).json({ msg: 'User registered successfully' });
     } catch (error) {
-       return res.status(http.StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error occured" });
+       return res.status(http.StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error occurred" });
     }
 }
 
@@ -69,12 +69,46 @@ const login = async (req, res) => {
 
         return res.status(http.StatusCodes.OK).json({ token, msg: "Logged in successfully", info: rest })
     } catch (error) {
-        return res.status(http.StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error occured" });
+        return res.status(http.StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error occurred" });
+    }
+}
+
+const signWithGoogle = async (req, res) => {
+    try {
+        const { name, email } = req.body
+
+        let user = await User.findOne({ name, email })
+
+        if (!user) {
+            // Generate random password
+            const generatedPassword = Math.random.toString(36).slice(-8);
+
+            const salt = await bcrypt.genSalt(10)
+            const hashedPassword = await bcrypt.hash(generatedPassword, salt);
+
+            user = await User.create({
+                name,
+                email,
+                password: hashedPassword,
+            })
+        }
+
+        // Generate JWT
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '2h' });
+
+        const { password: userPassword, ...rest } = user._doc
+
+        return res.status(http.StatusCodes.OK).json({ token, info: rest });
+
+    } catch (error) {
+        console.log(error.message);
+        return res.status(http.StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error occurred" });
     }
 }
 
 
 module.exports = {
     register,
-    login
+    login,
+    signWithGoogle
 }
