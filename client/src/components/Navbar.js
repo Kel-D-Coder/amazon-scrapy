@@ -3,8 +3,9 @@ import { useState, useEffect } from "react";
 import { persistor } from "../store/store";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import {isTokenExpired} from "../tokenUtils";
-import 'animate.css'
+import { isTokenExpired } from "../tokenUtils";
+import axios from "axios";
+import 'animate.css';
 
 
 const Navbar = () => {
@@ -18,6 +19,25 @@ const Navbar = () => {
     persistor.purge(); // clear persisted state
     window.location.reload();
     localStorage.removeItem('token');
+  }
+
+  const getPortal = async () => {
+    try {
+      const response = await axios('http://localhost:8000/api/v1/payment/customer/portal', {
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      console.log(response.data);
+      const data = response.data;
+
+      if (data.portalUrl) {
+        window.location.href = data.portalUrl;
+      }
+    } catch(error) {
+      console.log(error);
+      navigate(error.response.data.loginUrl);
+    }
   }
 
   useEffect(() => {
@@ -67,9 +87,9 @@ const Navbar = () => {
           <Link to="/tracked-product" className="hover:text-orange-300">
             Tracked Products
           </Link>
-          <Link to="/portal" className="hover:text-orange-300">
+          <button className="hover:text-orange-300" onClick={getPortal}>
             Portal
-          </Link>
+          </button>
           <Link to="/pricing" className="hover:text-orange-300">
             Pricing
           </Link>
@@ -91,13 +111,12 @@ const Navbar = () => {
           >
             Tracked Products
           </Link>
-          <Link
-            to="/portal"
+          <button
             className="hover:text-orange-300"
             onClick={() => setIsMenuOpen(false)}
           >
             Portal
-          </Link>
+          </button>
           <Link
             to="/pricing"
             className="hover:text-orange-300"

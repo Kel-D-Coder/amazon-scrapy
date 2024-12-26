@@ -132,7 +132,7 @@ export const SignUp = () => {
                 <p className="text-center text-red-700 mt-2">{error}</p>
                 <p className="text-center text-green-700 mt-2">{success}</p>
                 <footer className="text-center mt-6 text-lg text-white">
-                    Have an Account?{" "}
+                    Have an Account?
                     <Link to="/sign-in" className="text-yellow-300 hover:text-white transition">
                         Login
                     </Link>

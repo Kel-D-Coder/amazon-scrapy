@@ -1,7 +1,6 @@
 import Navbar from "./components/Navbar";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HomePage } from "./pages/HomePage";
-import { Portal } from "./pages/Portal"
 import { Pricing } from "./pages/Pricing"
 import { TrackedProduct} from "./pages/TrackedProduct"
 import { SignUp } from "./pages/SignUp";
@@ -22,7 +21,6 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/sign-in" element={<SignIn />} />
-          <Route path="/portal" element={<Portal />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/success" element={<PaymentSuccess />} />
           <Route path="/tracked-product" element={<TrackedProduct />} />
