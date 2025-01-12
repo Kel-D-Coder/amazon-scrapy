@@ -4,7 +4,7 @@ const ScrapePrice = require("./scrape.js");
 const Subscription = require('../models/subscription.model.js');
 const {sendNotification} = require("../utils/notification.js");
 
-// remember to test this function;
+// remember to refactor
 const Schedule = () => {
     cron.schedule('*/10 * * * * *', async () => {
         console.log("checking price .....");
@@ -43,7 +43,7 @@ const Schedule = () => {
                     continue
                         
                 } else {
-                    console.log("No price drop")
+                    console.log("No price drop");
                 }
             } catch (error) {
                 console.log(error.message)

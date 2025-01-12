@@ -66,7 +66,7 @@ const ScrapeProductPrice = async (url) => {
 
         await browser.close();
 
-        console.log(productData);
+        // console.log(productData);
         return productData;
 
     } catch (error) {

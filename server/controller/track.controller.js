@@ -76,4 +76,22 @@ const getTrackedProduct = async (req, res) => {
 }
 
 
-module.exports = { trackProduct, getProduct, getTrackedProduct }
+const unTrack = async (req, res) => {
+    try {
+        const user = await User.findByIdAndUpdate(
+            req.userId,
+            { $pull: { trackedProducts: req.body.productId } },
+            { new: true } // Return the updated document
+        ).populate('trackedProducts').exec();
+
+        if (!user) {
+            return res.status(http.StatusCodes.NOT_FOUND).json({ msg: "User not found" });
+        }
+
+        return res.status(http.StatusCodes.OK).json({ msg: "Product untracked successfully", trackedProducts: user.trackedProducts });
+    } catch (error) {
+        return res.status(http.StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error occurred" });
+    }
+}
+
+module.exports = { trackProduct, getProduct, getTrackedProduct, unTrack }
