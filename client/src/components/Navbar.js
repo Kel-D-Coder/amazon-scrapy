@@ -3,24 +3,25 @@ import { useState, useEffect } from "react";
 import { persistor } from "../store/store";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { isTokenExpired } from "../tokenUtils";
+import { isTokenExpired } from "../utils/tokenUtils";
 import axios from "axios";
 import 'animate.css';
 
 
-const Navbar = () => {
+export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const user = useSelector((store) => store.user.currentUser);
-  const [ isTokenStillValid, setIsTokenStillValid] = useState(true);
-
+  // const [isTokenStillValid, setIsTokenStillValid] = useState(true);
+  const token = localStorage.getItem('token');
+  
   const handleLogOut = () => {
     // clear redux state
     persistor.purge(); // clear persisted state
     window.location.reload();
     localStorage.removeItem('token');
   }
-
+  
   const getPortal = async () => {
     try {
       const response = await axios('http://localhost:8000/api/v1/payment/customer/portal', {
@@ -28,9 +29,9 @@ const Navbar = () => {
           "Authorization": `Bearer ${localStorage.getItem('token')}`
         }
       });
-      console.log(response.data);
-      const data = response.data;
 
+      const data = response.data;
+      
       if (data.portalUrl) {
         window.location.href = data.portalUrl;
       }
@@ -39,23 +40,31 @@ const Navbar = () => {
       navigate(error.response.data.loginUrl);
     }
   }
-
+  
   useEffect(() => {
-    const token = localStorage.getItem('token');
-
-    if(!token || isTokenExpired(token)) {
-      persistor.purge();
-      localStorage.removeItem('token')
-      setIsTokenStillValid(false);
+    
+    function checkTokenValidity() {
+      if (token) {
+        if(!token || isTokenExpired(token)) {
+          persistor.purge();
+          localStorage.removeItem('token')
+          window.location.reload()
+        } 
+      }
     }
-  }, [isTokenStillValid])
+
+    const interval = setInterval(checkTokenValidity, 10000);
+
+    return () => clearInterval(interval)
+    
+  }, [token])
 
   return (
     <div className="relative bg-transparent border-b">
       {/* Navbar container */}
-      <div className="flex justify-between items-center p-5">
+      <div className="flex justify-between items-center px-6 py-4 bg-gray-900 shadow-lg">
         {/* Brand */}
-        <Link to="/" className="text-orange-400 text-2xl underline">
+        <Link to="/" className="text-2xl font-bold text-orange-500">
           Amazon Scrapy
         </Link>
 
@@ -83,20 +92,35 @@ const Navbar = () => {
         </div>
 
         {/* Links and Auth Buttons (Desktop View) */}
-        <div className="hidden md:flex items-center gap-5 text-white">
-          <Link to="/tracked-product" className="hover:text-orange-300">
+        <div className="hidden md:flex items-center gap-6 text-white">
+          <Link to="/tracked-product" className="hover:text-orange-500">
             Tracked Products
           </Link>
-          <button className="hover:text-orange-300" onClick={getPortal}>
+          <button
+            className="hover:text-orange-500"
+            onClick={getPortal}
+          >
             Portal
           </button>
-          <Link to="/pricing" className="hover:text-orange-300">
+          <Link to="/pricing" className="hover:text-orange-500">
             Pricing
           </Link>
           {
-            user ?
-              <button className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg shadow-lg" onClick={handleLogOut}>LogOut</button>
-            : <button className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg shadow-lg" onClick={() => navigate("/sign-in")}>LogIn</button>
+            user ? (
+              <button
+                className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg shadow-lg"
+                onClick={handleLogOut}
+              >
+                Log Out
+              </button>
+            ) : (
+              <button
+                className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg shadow-lg"
+                onClick={() => navigate('/sign-in')}
+              >
+                Log In
+              </button>
+            )
           }
         </div>
       </div>
@@ -106,33 +130,46 @@ const Navbar = () => {
         <div className="absolute top-full left-0 w-full bg-black flex flex-col items-center gap-5 py-5 text-white md:hidden z-50 shadow-md animate__animated animate__slideInDown">
           <Link
             to="/tracked-product"
-            className="hover:text-orange-300"
+            className="hover:text-orange-500"
             onClick={() => setIsMenuOpen(false)}
           >
             Tracked Products
           </Link>
           <button
-            className="hover:text-orange-300"
-            onClick={() => setIsMenuOpen(false)}
+            className="hover:text-orange-500"
+            onClick={() => {
+              setIsMenuOpen(false);
+              getPortal();
+            }}
           >
             Portal
           </button>
           <Link
             to="/pricing"
-            className="hover:text-orange-300"
+            className="hover:text-orange-500"
             onClick={() => setIsMenuOpen(false)}
           >
             Pricing
           </Link>
           {
-            user ?
-              <button className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg shadow-lg" onClick={handleLogOut}>LogOut</button>
-            : <button className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg shadow-lg" onClick={() => navigate('/sign-in')}>LogIn</button>
+            token ? (
+              <button
+                className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg shadow-lg"
+                onClick={handleLogOut}
+              >
+                Log Out
+              </button>
+            ) : (
+              <button
+                className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg shadow-lg"
+                onClick={() => navigate('/sign-in')}
+              >
+                Log In
+              </button>
+            )
           }
         </div>
       )}
     </div>
   );
 };
-
-export default Navbar;

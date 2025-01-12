@@ -74,14 +74,14 @@ export const ProductDetails = ({ name, price, image, animate, url }) => {
 
     
     return (
-        <div className={`mt-6 p-4 border rounded-lg bg-gray-100 shadow-md w-full max-w-xl ${animate ? 'animate__animated animate__fadeIn' : 'hidden'}`}>
+        <div className={`mt-10 p-4 border self-center rounded-lg bg-gray-100 shadow-md w-full max-w-xl mb-8 ${animate ? 'animate__animated animate__fadeIn' : 'hidden'}`}>
             <div className="flex flex-col items-center">
                 <img
                     src={image}
-                    alt="Samsung s24 ultra"
+                    alt="Product"
                     className="w-32 h-32 object-contain rounded-md mb-4"
                 />
-                <h2 className="text-lg font-bold text-center">{name}</h2>
+                <h2 className="text-lg font-bold text-center text-gray-700">{name}</h2>
                 <p className="text-md font-semibold mt-2 text-orange-600">Price: ${price}</p>
                 <button className="mt-4 bg-orange-600 text-white font-medium py-2 px-4 rounded-md hover:bg-orange-500 transition w-full disabled:cursor-not-allowed disabled:bg-gray-600 disabled:text-gray-300 flex place-content-center" disabled={loading} onClick={trackProduct}>
                     {

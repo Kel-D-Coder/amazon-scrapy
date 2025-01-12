@@ -1,10 +1,10 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+// import { getAnalytics } from "firebase/analytics";
 import { GoogleAuthProvider, getAuth } from 'firebase/auth'
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBY1oujbZXr5TIFR-i2ylpoYcKimANZGb8",
+    apiKey: process.env.REACT_APP_API_KEY,
     authDomain: "scrapy-3de4d.firebaseapp.com",
     projectId: "scrapy-3de4d",
     storageBucket: "scrapy-3de4d.firebasestorage.app",
@@ -17,5 +17,5 @@ export const GoogleProvider = new GoogleAuthProvider();
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-export const auth = getAuth(app)
+// const analytics = getAnalytics(app);
+export const auth = getAuth(app);

@@ -56,45 +56,73 @@ export const TrackSection = () => {
     }, [])
 
     return (
-        <section className="flex flex-col place-items-center">
-            
+        <>
+            <section className="text-center py-16 px-4 text-white flex flex-col">
+                {/* Heading */}
+                <h2 className="text-3xl md:text-4xl font-bold mb-6">
+                    Welcome To <span className="text-orange-500">Amazon Scrapy</span>
+                </h2>
 
-            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row justify-center items-center mt-10 space-y-4 sm:space-y-0">
-                <div className="relative w-80 sm:w-80 md:w-80">
-                    <input
-                    type="text"
-                    placeholder="Paste your product link here"
-                    className="border-2 border-gray-600 focus:ring-2 focus:ring-yellow-500 bg-gray-800 w-full text-white px-4 h-11 py-2 rounded-l-md placeholder-gray-400"
-                    aria-label="Product URL"
-                    required
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    />
-                    {inputValue && (
-                    <button
-                        type="button"
-                        onClick={() => setInputValue('')}
-                        className="absolute right-2 top-2 text-gray-400 hover:text-white focus:outline-none"
-                        aria-label="Clear input"
-                    >
-                        ✕
-                    </button>
-                    )}
-                </div>
-                <button
-                    type="submit"
-                    className="bg-orange-600 text-white h-11 font-semibold px-6 py-2 rounded-r-md flex place-content-center sm:rounded-l-none hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 sm:ml-2 w-full sm:w-auto disabled:cursor-not-allowed disabled:bg-gray-600 disabled:text-gray-300"
-                    disabled={loading}
+                {/* Subtext */}
+                <p className="text-lg mb-8">
+                    Paste your product link below to get started with price tracking.
+                </p>
+
+                {/* Form Section */}
+                <form
+                    className="flex flex-col md:flex-row justify-center items-center gap-4 relative"
+                    onSubmit={handleSubmit}
                 >
-                    {loading ? <Loader /> : 'Get Product'}
-                </button>
-            </form>
+                    {/* Input Field */}
+                    <div className="relative w-full max-w-lg">
+                        <input
+                            type="text"
+                            placeholder="Paste your product link here"
+                            className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                            required
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                        />
 
-            <p className='text-red-700 text-center'>{error}</p>
+                        {/* Clear Button (appears when input is not empty) */}
+                        {inputValue && (
+                            <button
+                                type="button"
+                                onClick={() => setInputValue('')}
+                                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none"
+                                aria-label="Clear input"
+                            >
+                                ✕
+                            </button>
+                        )}
+                    </div>
 
-            <ProductDetails name={productInfo.name} price={productInfo.price} image={productInfo.productImage} animate={animate} url={inputValue} />
-            <HowToUse />
-        </section>
+                    {/* Submit Button */}
+                    <button
+                        type="submit"
+                        className="bg-orange-500 px-6 py-2 rounded-lg font-semibold hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-gray-600 disabled:text-gray-300"
+                        disabled={loading}
+                    >
+                        {loading ? <Loader/> : 'Get Product'}
+                    </button>
+                </form>
+
+                {/* Error Message */}
+                {error && <p className="text-red-700 text-center">{error}</p>}
+
+                {/* Product Details Component */}
+                {productInfo && (
+                    <ProductDetails
+                        name={productInfo.name}
+                        price={productInfo.price}
+                        image={productInfo.productImage}
+                        animate={animate}
+                        url={inputValue}
+                    />
+                )}
+            </section>
+            <HowToUse/>
+        </>
 
     )
 }

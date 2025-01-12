@@ -142,7 +142,7 @@ export const SignIn = () => {
                         alt="Google"
                         className="w-6 h-6 mr-3"
                     />
-                    Sign in with Google
+                    Continue with Google
                 </button>
 
                 <footer className="text-center mt-6 text-lg text-white">

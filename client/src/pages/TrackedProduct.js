@@ -7,7 +7,11 @@ import {useNavigate} from "react-router-dom";
 export const TrackedProduct = () => {
   const [trackedProducts, setTrackedProducts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [untrackLoading, setUntrackLoading] = useState(false);
+  const [ success, setSuccess ] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
+  const [ untrackItem, setUntrackItem ] = useState(null);
 
   useEffect(() => {
       setLoading(true);
@@ -25,7 +29,7 @@ export const TrackedProduct = () => {
           }
         });
         const data = await response.data;
-        setTrackedProducts(data)
+        setTrackedProducts(data.reverse());
         setLoading(false);
       } catch (error) {
         if (axios.isCancel(error)) {
@@ -44,6 +48,24 @@ export const TrackedProduct = () => {
     }
   }, [navigate])
 
+  const untrackProduct = async (productId, name) => {
+    setUntrackItem((name))
+    setUntrackLoading(true);
+    try {
+      const response = await axios.post('http://localhost:8000/api/v1/track/untrack', {productId}, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        }
+      })
+      setTrackedProducts(response.data.trackedProducts.reverse());
+      setUntrackLoading(false);
+      setSuccess(response.data.msg)
+    } catch (error) {
+      setUntrackLoading(false);
+      setError(error.response.data.msg);
+    }
+  }
+
   return (
       <div className="min-h-screen text-white py-12">
         <div className="text-center mb-8">
@@ -51,6 +73,8 @@ export const TrackedProduct = () => {
           <p className="text-gray-300 mt-2">
             View and manage the products you're tracking.
           </p>
+          <p className='text-green-700'>{success}</p>
+          <p className='text-red-700'>{error}</p>
         </div>
 
         <div className="max-w-5xl mx-auto px-4 flex flex-col justify-center items-center">
@@ -81,8 +105,9 @@ export const TrackedProduct = () => {
                           </div>
                         </div>
                         <button
-                            className="mt-4 sm:mt-0 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg shadow-lg">
-                          Untrack
+                            className="mt-4 sm:mt-0 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg shadow-lg disabled:cursor-not-allowed disabled:bg-gray-600 disabled:text-gray-300"
+                            disabled={untrackLoading} onClick={() => untrackProduct(trackedProduct._id, trackedProduct.name)}>
+                          { untrackItem === trackedProduct.name && untrackLoading ? <Loader /> : "Untrack"}
                         </button>
                       </li>
                   );
